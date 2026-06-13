@@ -1,0 +1,6 @@
+{
+  "name": "Adult BMI Calculator",
+  "description": "A professional, intuitive, and modern Body Mass Index calculator for adults.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
