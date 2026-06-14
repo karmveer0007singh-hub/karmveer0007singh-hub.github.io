@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RefreshCw, Activity, User, Ruler, Weight, ArrowRight, Info, Sparkles, Flame, TrendingUp, BookOpen, Apple } from 'lucide-react';
+import { RefreshCw, Activity, User, Ruler, Weight, ArrowRight, Info, Sparkles, Flame, TrendingUp, BookOpen, Apple, Droplet, Plus, Minus } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 type AppState = 'input' | 'result';
@@ -113,6 +113,85 @@ const BmiInfoRanges = () => {
         ))}
       </div>
     </div>
+  );
+};
+
+const HydrationTracker = () => {
+  const [glasses, setGlasses] = useState(() => {
+    try {
+      const saved = localStorage.getItem('hydrationTracker');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const today = new Date().toLocaleDateString();
+        if (parsed.date === today) {
+          return parsed.count;
+        }
+      }
+      return 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  const dailyGoal = 8;
+
+  const updateGlasses = (newCount: number) => {
+    const validCount = Math.max(0, newCount);
+    setGlasses(validCount);
+    localStorage.setItem('hydrationTracker', JSON.stringify({
+      date: new Date().toLocaleDateString(),
+      count: validCount
+    }));
+  };
+
+  return (
+    <motion.div
+      initial={{ y: 10, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ delay: 0.7 }}
+      className="w-full max-w-md mx-auto mt-2 bg-slate-50 border border-slate-200 rounded-xl p-5"
+    >
+      <div className="flex items-center justify-between mb-4 border-b border-slate-200 pb-3">
+        <div className="flex items-center gap-2 text-slate-500">
+          <Droplet size={18} className="text-blue-500" />
+          <span className="font-medium text-xs tracking-wide uppercase">Daily Hydration</span>
+        </div>
+        <span className="text-xs font-medium text-slate-400">
+          Goal: {dailyGoal} glasses
+        </span>
+      </div>
+      
+      <div className="flex items-center justify-between">
+        <button 
+          onClick={() => updateGlasses(glasses - 1)}
+          disabled={glasses === 0}
+          className="p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <Minus size={20} />
+        </button>
+        
+        <div className="flex flex-col items-center">
+          <span className="text-4xl font-display font-bold text-blue-500">{glasses}</span>
+          <span className="text-xs text-slate-400 font-medium">/ {dailyGoal}</span>
+        </div>
+
+        <button 
+          onClick={() => updateGlasses(glasses + 1)}
+          className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+        >
+          <Plus size={20} />
+        </button>
+      </div>
+
+      <div className="mt-5 flex gap-1 justify-center">
+        {Array.from({ length: Math.max(dailyGoal, glasses) }).map((_, i) => (
+          <div 
+            key={i} 
+            className={`h-6 w-full rounded-sm transition-colors duration-300 ${i < glasses ? 'bg-blue-400' : 'bg-slate-200'}`}
+          />
+        ))}
+      </div>
+    </motion.div>
   );
 };
 
@@ -398,6 +477,8 @@ export default function App() {
                       </div>
                     )}
                   </motion.div>
+
+                  <HydrationTracker />
                 </motion.div>
 
                 <button
